@@ -1,5 +1,5 @@
 const {db} = require('./db');
-const {Band, Musician} = require('./index')
+const {Band, Musician, Fan} = require('./index')
 
 describe('Band and Musician Models', () => {
     /**
@@ -36,5 +36,59 @@ describe('Band and Musician Models', () => {
             name: 'Freddy Mercury',
             instrument: 'Vocalist'
         });
+    })
+    test('assign Musician as a member of a band', async () => {
+        // TODO - test creating a musician
+        const testMusician2 = await Musician.create({
+            name: 'Anakin',
+            instrument: 'Force'
+        })
+        const testMusician = await Musician.create({
+            name: 'Jango',
+            instrument: 'Blaster'
+        });
+        const testBand = await Band.create({
+            name: 'Mandalorian',
+            genre: 'Bounty Hunter'
+        });
+         await testBand.addMusician(testMusician2);
+         await testBand.addMusician(testMusician);
+         const assignTest = await Musician.findAll({where: {
+            MemberName: 'Mandalorian'
+        }})
+        expect(assignTest[0].MemberName).toEqual('Mandalorian')
+         
+        
+    })
+    test ('Make a fan', async () => {
+        const testFan = await Fan.create({
+            name: 'Boba',
+            Age: 6
+        })
+        const { name, Age } = testFan
+        expect({ name, Age }).toMatchObject({
+            name: 'Boba',
+            Age: 6
+        })
+    })
+    test ('Add Fan to Band', async () => {
+        const testFan = await Fan.create({
+            name: 'Yoda',
+            Age: 999
+        })
+        const assignedBand = await Band.findOne({ where: {
+            name: 'Mandalorian'
+        }})
+        await assignedBand.addFan(testFan)
+        const devTest = await Band.findAll({include: {
+            model: Fan,
+           // as: 'Fans',
+            required: true,
+            //where: {
+             //   name: 'Yoda'
+           // }
+        }});
+        console.log(devTest)
+        expect(devTest[0].name).toBe('Mandalorian')
     })
 })
